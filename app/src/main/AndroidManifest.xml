@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.LOCATION_HARDWARE"
         tools:ignore="ProtectedPermissions" />
 
+    <uses-feature android:name="android.software.companion_device_setup"/>
     <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>
     <application
         android:allowBackup="true"
