@@ -1,12 +1,12 @@
 package com.pirates.connectme;
 
 
-
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-
+import android.bluetooth.BluetoothGattCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,22 +14,23 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-
-
-
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class MainActivity extends Activity {
@@ -44,6 +45,7 @@ public class MainActivity extends Activity {
 
     //Bluetooth device list
     List<String> deviceList;
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +66,7 @@ public class MainActivity extends Activity {
         adapter = BluetoothAdapter.getDefaultAdapter();
         devicesView = (ListView) findViewById(R.id.list_devices);
         MaterialButton startScanBtn = findViewById(R.id.scan_btn);
+        MaterialButton pairDevicesButton = findViewById(R.id.paired_btn);
 
 
         //set toogle button
@@ -91,24 +94,41 @@ public class MainActivity extends Activity {
             }
         });
 
+        devicesView.setOnItemClickListener(onClickDevice);
+
+        pairDevicesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(adapter.isEnabled()) {
+                    showPairedDevices();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Bluetooth not enabled", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
     private void askRequiedPermissionss() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
-        if (ContextCompat.checkSelfPermission(
-                getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
-
-            //if permsion already granted do nothing
-
-        }else {
-            // If permision not granted ask for it
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-               requestPermissions(
-                        new String[] { Manifest.permission.ACCESS_COARSE_LOCATION },1);
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,}, 1);
             }
         }
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getApplicationContext(), "PERMISSON GRANTED", Toast.LENGTH_SHORT);
+        } else {
+            askRequiedPermissionss();
+        }
     }
 
     private void enableBluetooth() {
@@ -120,15 +140,16 @@ public class MainActivity extends Activity {
 
     }
 
-//    public void showPairedDevices() {
-//        Set<BluetoothDevice> devices = adapter.getBondedDevices();
-//        Toast.makeText(getApplicationContext(),  "DEVICES" + devices.size(), Toast.LENGTH_LONG).show();
-//        for(BluetoothDevice device: devices) {
-//            Toast.makeText(getApplicationContext(), "FOUND SOMETHING", Toast.LENGTH_SHORT).show();
-//            deviceList.add(device.getName());
-//        }
-//        updateList();
-//    }
+   public void showPairedDevices() {
+        Toast.makeText(getApplicationContext(), "SHOWING PAIRED DEVICES", Toast.LENGTH_LONG);
+        Set<BluetoothDevice> devices = adapter.getBondedDevices();
+        Toast.makeText(getApplicationContext(),  "DEVICES" + devices.size(), Toast.LENGTH_LONG).show();
+        for(BluetoothDevice device: devices) {
+            Toast.makeText(getApplicationContext(), "FOUND SOMETHING", Toast.LENGTH_SHORT).show();
+            deviceList.add(device.getName());
+        }
+        updateList();
+    }
 
 
 
@@ -167,7 +188,9 @@ public class MainActivity extends Activity {
         }
     };
 
-
+    private AdapterView.OnItemClickListener onClickDevice = (parent, view, position, id) -> {
+        Toast.makeText(getApplicationContext(), "WORKING!", Toast.LENGTH_SHORT).show();
+    };
 
 
     public void updateList() {
