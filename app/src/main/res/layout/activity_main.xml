@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/Theme.ConnectMe.AppBarOverlay">
-
     </com.google.android.material.appbar.AppBarLayout>
     <LinearLayout
         android:orientation="vertical"

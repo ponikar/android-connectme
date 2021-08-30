@@ -3,13 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/colege/sem7/Mobile Application Development-3170726/project/android-connectme/app/src/main/res/layout/activity_main.xml" value="0.16286644951140064" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/content_main.xml" value="0.17395833333333333" />
+        <entry key="..\:/colege/sem7/Mobile Application Development-3170726/project/android-connectme/app/src/main/res/layout/activity_main.xml" value="0.176" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" project-jdk-name="JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
