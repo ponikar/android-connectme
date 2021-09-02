@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Bluetooth device list
     List<BluetoothDevice> deviceList;
+    List<String> devicesName;
 
     ProgressDialog dailog;
 
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         dailog = getProgressDailog("Scanning...","Scanning");
         //initilize empty list
         deviceList = new ArrayList<>();
+        devicesName = new ArrayList<>();
 
         askRequiedPermissionss(); //ask for  Permission
 
@@ -117,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
             createBond(deviceList.get(i));
 //                BluetoothSocket socket = deviceList.get(i).createRfcommSocketToServiceRecord(uuid[0].getUuid());
 
-
         });
 
 
@@ -135,10 +136,15 @@ public class MainActivity extends AppCompatActivity {
         Class class1 = null;
         boolean returnVal = false;
         try {
+            ProgressDialog bar = getProgressDailog("Connecting", device.getName());
+            bar.show();
             class1 = Class.forName("android.bluetooth.BluetoothDevice");
             Method createBondMethod = class1.getMethod("createBond");
-
             returnVal = (Boolean) createBondMethod.invoke(device);
+            bar.dismiss();
+
+            String message = returnVal ? "Device Connected" : "Something went wrong!";
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -183,18 +189,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showPairedDevices() {
+        clearDevices();
         Toast.makeText(getApplicationContext(), "SHOWING PAIRED DEVICES", Toast.LENGTH_LONG);
         Set<BluetoothDevice> devices = adapter.getBondedDevices();
         Toast.makeText(getApplicationContext(), "DEVICES" + devices.size(), Toast.LENGTH_LONG).show();
         for (BluetoothDevice device : devices) {
             Toast.makeText(getApplicationContext(), "FOUND SOMETHING", Toast.LENGTH_SHORT).show();
             deviceList.add(device);
+            devicesName.add(device.getName());
         }
         updateList();
     }
 
+    public void clearDevices() {
+        devicesName.clear();
+        deviceList.clear();
+    }
 
     public void startScanning() {
+        clearDevices();
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
 
@@ -215,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), " Device Found", Toast.LENGTH_SHORT).show();
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
+                devicesName.add(device.getName());
                 deviceList.add(device);
                 updateList();
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
@@ -231,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void updateList() {
-        devicesView.setAdapter(new ArrayAdapter<>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, deviceList));
+        devicesView.setAdapter(new ArrayAdapter<>(getApplicationContext(), R.layout.support_simple_spinner_dropdown_item, devicesName));
     }
 
     public ProgressDialog getProgressDailog(String message, String title) {
